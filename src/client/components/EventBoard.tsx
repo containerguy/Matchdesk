@@ -139,12 +139,6 @@ export function EventBoard({
   }, [catalogAvailable]);
 
   useEffect(() => {
-    if (!compactTouchShell) {
-      setCreateFlowOpen(false);
-    }
-  }, [compactTouchShell]);
-
-  useEffect(() => {
     if (expandedEventId && !events.some((entry) => entry.id === expandedEventId)) {
       setExpandedEventId(null);
     }
@@ -874,7 +868,7 @@ export function EventBoard({
     </div>
   );
 
-  const managerCreateOverlay = showCreateForm && compactTouchShell && createFlowOpen;
+  const managerCreateOverlay = showCreateForm && createFlowOpen;
   const boardClassName = `event-board ${mode === "manager" ? "manager-board" : "events-board"}${compactTouchShell ? " event-board--compact" : ""}`;
 
   return (
@@ -889,7 +883,7 @@ export function EventBoard({
       ) : null}
       {message ? <p className="notice">{message}</p> : null}
       {error ? <p className="error">{error}</p> : null}
-      {showCreateForm && compactTouchShell && !createFlowOpen ? (
+      {showCreateForm && !createFlowOpen ? (
         <div className="event-compact-primary-action">
           <button
             type="button"
@@ -902,7 +896,7 @@ export function EventBoard({
           </button>
         </div>
       ) : null}
-      {showCreateForm && compactTouchShell && createFlowOpen ? (
+      {showCreateForm && createFlowOpen ? (
         <div className="event-overlay-panel" role="region" aria-label={t("events.overlay.aria")}>
           <div className="event-overlay-toolbar">
             <button type="button" className="secondary" onClick={() => setCreateFlowOpen(false)}>
@@ -1000,7 +994,6 @@ export function EventBoard({
               </div>
             ) : null}
           </div>
-          {showCreateForm && !compactTouchShell ? newEventForm : null}
         </>
       ) : null}
     </section>
