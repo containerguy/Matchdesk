@@ -162,12 +162,14 @@ export function createCoreModule(moduleAdminSections: AdminNavEntry[]): AppModul
           )
       },
       {
+        // Unterseite von „Event" (kein eigener Hauptmenüpunkt, siehe Befund B4/P6): erreichbar
+        // nur über `#main-events/infos`; `#infos` leitet dorthin weiter (normalizeLegacyHash).
         id: "infos",
-        hash: "infos",
-        order: 80,
+        hash: "main-events/infos",
+        order: 25,
         label: (t) => t("main.nav.infos"),
         icon: NAV_ICONS.infos,
-        inMenu: (ctx) => Boolean(ctx.currentUser) && ctx.settings.infosEnabled,
+        inMenu: () => false,
         hero: (t) => ({
           eyebrow: t("main.route.infos.eyebrow"),
           title: t("main.route.infos.title"),
