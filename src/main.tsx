@@ -8,9 +8,8 @@ import { clearCsrfToken, primeCsrfToken } from "./client/api/csrf";
 import { KioskStreamPage } from "./client/components/KioskStreamPage";
 import { MainEventSwitcher } from "./client/components/MainEventSwitcher";
 import { appPages } from "./client/navigation/modules";
-import { buildRuntimeAppModules, useRuntimeModules } from "./client/modules/runtime";
+import { useRuntimeModules } from "./client/modules/runtime";
 import {
-  collectPages,
   menuPages,
   resolvePage,
   type NavContext,
@@ -85,6 +84,9 @@ function normalizeLegacyHash(rawHash: string): string {
   if (legacy) return `#admin/${legacy[1]}${legacy[2]}`;
   const moved = rawHash.match(/^#(pizza|playing)(\/.*)?$/);
   if (moved) return `#m/${moved[1] === "playing" ? "presence" : moved[1]}${moved[2] ?? ""}`;
+  // „Infos" ist Unterseite von „Event" (kein eigener Hauptmenüpunkt mehr, siehe HCI-114).
+  const movedInfos = rawHash.match(/^#infos(\/.*)?$/);
+  if (movedInfos) return `#main-events/infos${movedInfos[1] ?? ""}`;
   // Spielkonten liegen jetzt im Profilbereich des Moduls.
   return rawHash.replace(/^#login\/spielkonten\b/, "#login/m-presence");
 }
@@ -335,16 +337,11 @@ function AppShell({
     () => ({ currentUser, settings: appSettings, runtimeModules, locale }),
     [currentUser, appSettings, runtimeModules, locale]
   );
-  // Kernseiten plus Menüpunkte der aktiven Laufzeit-Module (GET /api/modules).
-  const pages = useMemo(
-    () =>
-      runtimeModules.length === 0
-        ? appPages
-        : collectPages([{ id: "static", pages: appPages }, ...buildRuntimeAppModules(runtimeModules, locale)]),
-    [runtimeModules, locale]
-  );
-  const { page: activePage, subPath } = resolvePage(pages, navContext, rawHash);
-  const menu = menuPages(pages, navContext);
+  // Das Hauptmenü ist fest (Runden, Event, Mitmachen, Admin); aktive Module tragen ihre
+  // Menüpunkte nur noch über `ctx.runtimeModules` zur Sammelseite „Mitmachen" bei, siehe
+  // `createCoreModule`. Das Hauptmenü selbst ist dadurch unabhängig von der Zahl der Module.
+  const { page: activePage, subPath } = resolvePage(appPages, navContext, rawHash);
+  const menu = menuPages(appPages, navContext);
   const subnav = activePage.subnav?.(t, navContext) ?? [];
   const activeSubSlug = subPath.split("/")[0] || subnav[0]?.slug || "";
 
@@ -389,7 +386,9 @@ function AppShell({
   }
 
   function isActive(page: NavPage) {
-    return activePage.id === page.id;
+    // Unterseiten ohne eigenen Menüpunkt (z. B. „Infos" unter „Event") halten den Menüpunkt
+    // ihrer übergeordneten Seite aktiv, erkennbar am mehrteiligen Hash-Präfix.
+    return activePage.id === page.id || activePage.hash.startsWith(`${page.hash}/`);
   }
 
   const pageContent = activePage.render({
