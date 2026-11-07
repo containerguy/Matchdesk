@@ -15,6 +15,7 @@ import {
 } from "../modules/runtime";
 import { type ProfileSectionId, profileSectionIds } from "../components/LoginPanel";
 import { LoginRequired } from "./LoginRequired";
+import { useI18n } from "../i18n/I18nContext";
 import { NAV_ICONS } from "./icons";
 import type { AdminNavEntry, AdminNavGroup, AppModule, NavContext, NavPageRenderContext, SubnavEntry } from "./registry";
 import { hasPermission, hasPermissionAnywhere, isAdministrator } from "../permissions";
@@ -98,6 +99,15 @@ function profileModules(ctx: NavContext) {
 
 function firstSegment(subPath: string) {
   return subPath.split("/")[0] ?? "";
+}
+
+/**
+ * Leerzustand der Sammelseite „Mitmachen". Eigene Komponente, weil `render` keine Hook-Umgebung
+ * ist und der Text aus dem Katalog kommt.
+ */
+function ModuleMenuEmpty() {
+  const { t } = useI18n();
+  return <p className="empty-state">{t("main.mitmachen.empty")}</p>;
 }
 
 /**
@@ -235,7 +245,7 @@ export function createCoreModule(moduleAdminSections: AdminNavEntry[]): AppModul
           const resolved =
             resolveModuleMenuEntry(infos, ctx.subPath) ?? (entries[0] ? { match: entries[0], innerSubPath: "" } : undefined);
           if (!resolved) {
-            return <p className="muted">Noch keine Module aktiv.</p>;
+            return <ModuleMenuEmpty />;
           }
           return (
             <ModuleMenuEntryPage

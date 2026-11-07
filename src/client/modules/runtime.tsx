@@ -195,7 +195,7 @@ export function ModuleProfileSection({ info, locale, user }: { info: RuntimeModu
       info={info}
       locale={locale}
       pick={(definition) => definition.Profile as React.ComponentType<never> | undefined}
-      fallback={<p className="muted">Dieses Modul hat keinen Profilbereich.</p>}
+      fallback={<p className="empty-state">Dieses Modul hat keinen Profilbereich.</p>}
       render={(Profile) => {
         const Component = Profile as unknown as React.ComponentType<import("./types").ModuleProfileProps>;
         return <Component user={user} />;
@@ -257,7 +257,7 @@ export function ModuleMenuEntryPage({
         info={info}
         locale={locale}
         pick={(definition) => definition.Page as React.ComponentType<never> | undefined}
-        fallback={<p className="muted">Dieses Modul hat keine eigene Seite.</p>}
+        fallback={<p className="empty-state">Dieses Modul hat keine eigene Seite.</p>}
         render={(Page) => {
           const Component = Page as unknown as React.ComponentType<import("./types").ModulePageProps>;
           return <Component path={entry.path} subPath={subPath} user={user} permissions={info.permissions} />;

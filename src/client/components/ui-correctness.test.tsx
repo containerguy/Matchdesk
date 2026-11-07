@@ -5,6 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { EventBoard } from "./EventBoard";
 import { AdminPanel } from "./AdminPanel";
+import { appPages } from "../navigation/modules";
 import { I18nProvider } from "../i18n/I18nContext";
 
 import type { AppSettings, User } from "../types/core";
@@ -280,6 +281,41 @@ describe("ui correctness structure contracts", () => {
     expect(empty?.querySelector("strong")?.textContent).toBe("Noch keine Runden im Board");
     expect(rendered.container.querySelector(".event-list .event-card")).toBeNull();
     expect(rendered.container.querySelector(".event-compact-empty")).toBeNull();
+
+    await rendered.cleanup();
+  });
+
+  // HCI-178: Der Leerzustand der Sammelseite „Mitmachen" kam mit P5 nach dem Branch von P14 dazu
+  // und war deshalb noch ein nacktes p.muted.
+  it("Mitmachen zeigt ohne aktive Module einen .empty-state, kein nacktes p.muted", async () => {
+    const currentUser: User = {
+      id: "u_user",
+      phoneNumber: "+4900000002",
+      username: "spieler",
+      displayName: "Spieler",
+      email: "s@example.test",
+      role: "user",
+      notificationsEnabled: true
+    };
+
+    const mitmachen = appPages.find((page) => page.id === "mitmachen")!;
+    const rendered = await renderIntoDocument(
+      <>
+        {mitmachen.render({
+          currentUser,
+          settings: {} as AppSettings,
+          runtimeModules: [],
+          subPath: "",
+          setCurrentUser: () => {},
+          applySettings: () => {}
+        })}
+      </>
+    );
+
+    const empty = rendered.container.querySelector(".empty-state");
+    expect(empty).toBeTruthy();
+    expect(empty?.textContent).toBe("Noch keine Module aktiv.");
+    expect(rendered.container.querySelector("p.muted")).toBeNull();
 
     await rendered.cleanup();
   });
