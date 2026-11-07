@@ -74,6 +74,7 @@ export const deMessages = {
     "Sieh auf einen Blick, welche Runde tragfähig ist, und triff deine Wahl. Mit Manager- oder Adminrechten legst du neue Runden hier direkt an — ohne zweite Oberfläche.",
   "main.route.mitmachen.eyebrow": "Module",
   "main.route.mitmachen.title": "Mitmachen bei Pizza, Spielt gerade & Co.",
+  "main.mitmachen.empty": "Noch keine Module aktiv.",
   "main.route.infos.eyebrow": "Orientierung",
   "main.route.infos.title": "Informationen und Hinweise",
   "main.infos.guest.title": "Anmeldung erforderlich",

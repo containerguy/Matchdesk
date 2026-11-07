@@ -76,6 +76,7 @@ export const enMessages: { [K in keyof typeof deMessages]: string } = {
     "See which round is ready to start and make your choice. Managers and admins create new rounds right here—no second UI.",
   "main.route.mitmachen.eyebrow": "Modules",
   "main.route.mitmachen.title": "Join in on pizza, now playing & more",
+  "main.mitmachen.empty": "No modules active yet.",
   "main.route.infos.eyebrow": "Orientation",
   "main.route.infos.title": "Information and notes",
   "main.infos.guest.title": "Sign-in required",
