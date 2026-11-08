@@ -4285,6 +4285,8 @@ details.collapsible[open] > summary::before {
   .page-card .action-row > .button-link {
     width: 100%;
   }
+}
+
 /* Admin › Module › <Modul>: Zugangsdaten (nur schreiben, Status anzeigen) */
 .module-secret {
   margin-bottom: 12px;
