@@ -603,10 +603,6 @@ h2 {
   width: 100%;
 }
 
-.event-compact-empty {
-  grid-column: 1 / -1;
-}
-
 .event-overlay-panel {
   position: fixed;
   inset: 0;
@@ -1438,6 +1434,13 @@ dd {
 .invite-list {
   display: grid;
   gap: 10px;
+}
+
+/* Eine Liste ohne Einträge belegt keinen Platz — daneben steht dann der .empty-state. */
+.device-list:empty,
+.invite-list:empty,
+.main-events-list:empty {
+  display: none;
 }
 
 .device-row,
@@ -3132,6 +3135,20 @@ dd {
     font-weight: 800;
     text-decoration: none;
   }
+
+  /*
+   * Profil/Login: anders als Admin nicht per Tippen zwischen Liste und Inhalt wechseln (B.neu-3) –
+   * sonst fehlt die Bestätigung „Aktuelle Anmeldung" direkt nach dem Login auf dem Handy, weil
+   * `#login` ohne Unterpfad als Index gilt und `.side-content` dann ausgeblendet wäre.
+   */
+  .page-login .side-layout:not(.side-layout--index) .side-nav,
+  .page-login .side-layout--index .side-content {
+    display: grid;
+  }
+
+  .page-login .side-back {
+    display: none;
+  }
 }
 
 /* Benutzer anlegen: auf breiten Bildschirmen eine Zeile über der Liste. */
@@ -3302,11 +3319,6 @@ button.data-table__sort.active {
 
 .data-table__actions button + button {
   margin-left: 6px;
-}
-
-.data-table__empty {
-  margin: 0;
-  padding: 16px;
 }
 
 /* Handy: jede Zeile als kompakte Karte mit Beschriftung pro Feld */
@@ -3971,6 +3983,69 @@ ul.device-list {
   font-size: 0.82rem;
 }
 
+/*
+ * Auswahlzeile und Sammelleiste: eine Liste, in der mehrere Zeilen auf einmal bearbeitet werden.
+ * Markup:
+ *   <div class="bulk-bar"><strong>2 ausgewählt</strong> …Knöpfe…</div>
+ *   <ul class="device-list">
+ *     <li class="device-row device-row--selectable device-row--selected">
+ *       <input type="checkbox" aria-label="…" /> <div>…Infos…</div>
+ *       <div class="device-actions">…</div>
+ *     </li>
+ *   </ul>
+ * Das Kästchen braucht einen eigenen Namen (`aria-label`), weil die Zeile kein Label trägt.
+ */
+.device-row--selectable {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 12px;
+}
+
+.device-row--selectable > input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+/* Gewählte Zeile: gleiche Form, nur deutlich hervorgehoben. */
+.device-row--selected {
+  border-color: var(--teal);
+  background: var(--surface-strong);
+}
+
+/* Sammelleiste über der Liste: Anzahl links, Aktionen rechts. */
+.bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--teal);
+  border-radius: var(--radius-sm);
+  background: var(--surface-strong);
+}
+
+.bulk-bar > strong {
+  margin-right: auto;
+}
+
+.bulk-bar button,
+.bulk-bar .button-link {
+  width: auto;
+}
+
+/* Handy: die Zeilenaktionen bekommen eine eigene Zeile unter den Infos, kein Überlauf. */
+@media (max-width: 760px) {
+  .device-row--selectable {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .device-row--selectable > .device-actions {
+    grid-column: 1 / -1;
+  }
+}
+
 /* Module einer Quelle: eigene Zeilen unter der Quelle, gleiche Form wie installierte Module */
 .module-source > .module-available,
 .module-source > .error,
@@ -3991,12 +4066,18 @@ ul.device-list {
   background: rgba(0, 0, 0, 0.07);
 }
 
-/* „Mehr“-Menü für seltene Aktionen in Listenzeilen */
+/*
+ * „Mehr“-Menü für seltene Aktionen in Listenzeilen. Technisch ein <details>, aber kein
+ * aufklappbarer Abschnitt: Der Griff ist ein Knopf. Die Kartenregeln für <details>
+ * (Trennlinie, fette Überschrift, „›“) nehmen `.more-menu` deshalb aus.
+ */
 .more-menu {
   position: relative;
 }
 
 .more-menu > summary {
+  /* `gap` trennt Beschriftung und „▾“; im Flex-Kasten fällt das Leerzeichen dazwischen weg. */
+  gap: 4px;
   list-style: none;
   min-height: 38px;
   padding: 0 14px;
@@ -4099,7 +4180,10 @@ legend {
  * dieselbe Karte wie Admin und Profil; Bausteine darin (für Module stabil, siehe SDK-README):
  *   .empty-state   Leerzustand
  *   details        aufklappbarer Abschnitt (Trennlinie, fette Überschrift, Pfeil)
+ *   .more-menu     „Mehr“-Knopf mit Aktionsliste (bleibt ein Knopf, kein Abschnitt)
  *   .device-list / .device-row / .item-title / .item-sub / .device-actions   Listenzeilen
+ *   .device-row--selectable / .device-row--selected   Zeile mit Auswahlkästchen
+ *   .bulk-bar   Sammelleiste über einer Liste („n ausgewählt" plus Aktionen)
  *   .badge(--ok|--warn|--danger), .button-link(.secondary), button(.secondary|.danger)
  */
 .page-card {
@@ -4119,7 +4203,16 @@ legend {
   min-width: 0;
 }
 
+/*
+ * Leerzustand einer Liste, Tabelle oder Sammlung. Ersetzt die Zeilen, nicht die Karte drumherum:
+ * ein Leerzustand bekommt nie eine eigene Karte und nie eigenes Markup. Zwei Formen:
+ *   <p class="empty-state">Noch keine Invite-Codes.</p>
+ *   <div class="empty-state"><strong>Titel</strong><span>Was als Nächstes hilft.</span></div>
+ * Für ganze Seiten ohne Inhalt (Bereich abgeschaltet, keine Rechte) bleibt .access-panel zustaendig.
+ */
 .empty-state {
+  display: grid;
+  gap: 4px;
   margin: 0;
   padding: 18px;
   border: 1px dashed var(--line);
@@ -4128,14 +4221,18 @@ legend {
   text-align: center;
 }
 
+.empty-state > strong {
+  color: var(--ink);
+}
+
 /* R5 (HCI-124): Hinter details steht nie eine Hauptaktion einer Seite, nur Zusatzinformation.
    Die Hauptaktion ist die, die in der Spalte "Häufigste Aktion" von HCI-103 Abschnitt 2 steht. */
-.page-card details {
+.page-card details:not(.more-menu) {
   border-top: 1px solid var(--line);
   padding-top: 12px;
 }
 
-.page-card details > summary,
+.page-card details:not(.more-menu) > summary,
 details.collapsible > summary {
   display: flex;
   align-items: center;
@@ -4146,12 +4243,12 @@ details.collapsible > summary {
   list-style: none;
 }
 
-.page-card details > summary::-webkit-details-marker,
+.page-card details:not(.more-menu) > summary::-webkit-details-marker,
 details.collapsible > summary::-webkit-details-marker {
   display: none;
 }
 
-.page-card details > summary::before,
+.page-card details:not(.more-menu) > summary::before,
 details.collapsible > summary::before {
   content: "›";
   display: inline-block;
@@ -4162,12 +4259,12 @@ details.collapsible > summary::before {
   transition: transform 120ms ease;
 }
 
-.page-card details[open] > summary::before,
+.page-card details[open]:not(.more-menu) > summary::before,
 details.collapsible[open] > summary::before {
   transform: rotate(90deg);
 }
 
-.page-card details[open] > summary {
+.page-card details[open]:not(.more-menu) > summary {
   margin-bottom: 8px;
 }
 

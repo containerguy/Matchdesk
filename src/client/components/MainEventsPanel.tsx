@@ -43,12 +43,15 @@ const emptyDraft = {
  */
 export function MainEventsPanel({
   canManage = true,
-  canManageEvent
+  canManageEvent,
+  showInfosLink = false
 }: {
   /** Globales Recht: Events anlegen und alle verwalten. */
   canManage?: boolean;
   /** Recht für ein einzelnes Event (auch per Event-Vergabe). */
   canManageEvent?: (mainEventId: string) => boolean;
+  /** Link zur Unterseite „Infos" zeigen (Admin hat den allgemeinen Infotext eingeschaltet). */
+  showInfosLink?: boolean;
 }) {
   const manages = (mainEventId: string) => canManage || Boolean(canManageEvent?.(mainEventId));
   const { t, locale } = useI18n();
@@ -271,6 +274,11 @@ export function MainEventsPanel({
   return (
     <section className="main-events-panel" aria-label={canManage ? t("mainEvents.aria") : t("mainEvents.ariaList")}>
       {canManage ? <p className="muted">{t("mainEvents.intro")}</p> : null}
+      {showInfosLink ? (
+        <a className="text-link main-events-infos-link" href="#main-events/infos">
+          {t("mainEvents.infosLink")}
+        </a>
+      ) : null}
       {message ? <p className="notice">{message}</p> : null}
       {error ? <p className="error">{error}</p> : null}
       <ul className="main-events-list">
@@ -359,23 +367,26 @@ export function MainEventsPanel({
               {manages(mainEvent.id) && mainEvent.visibility === "private" && mainEvent.status !== "ended" ? (
                 <div className="main-event-invites">
                   <p className="muted">{t("mainEvents.invites.title")}</p>
-                  <ul>
-                    {(mainEvent.invites ?? []).map((entry) => (
-                      <li key={entry.userId}>
-                        {entry.username}
-                        <button
-                          type="button"
-                          className="secondary"
-                          disabled={busy}
-                          aria-label={t("mainEvents.invites.removeAria", { name: entry.username })}
-                          onClick={() => uninvite(mainEvent, entry.userId)}
-                        >
-                          ✕
-                        </button>
-                      </li>
-                    ))}
-                    {(mainEvent.invites ?? []).length === 0 ? <li className="muted">{t("mainEvents.invites.empty")}</li> : null}
-                  </ul>
+                  {(mainEvent.invites ?? []).length === 0 ? (
+                    <p className="empty-state">{t("mainEvents.invites.empty")}</p>
+                  ) : (
+                    <ul>
+                      {(mainEvent.invites ?? []).map((entry) => (
+                        <li key={entry.userId}>
+                          {entry.username}
+                          <button
+                            type="button"
+                            className="secondary"
+                            disabled={busy}
+                            aria-label={t("mainEvents.invites.removeAria", { name: entry.username })}
+                            onClick={() => uninvite(mainEvent, entry.userId)}
+                          >
+                            ✕
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   <div className="main-event-invite-form">
                     <select
                       aria-label={t("mainEvents.invites.pick")}
@@ -491,8 +502,8 @@ export function MainEventsPanel({
             </li>
           );
         })}
-        {mainEvents.length === 0 ? <li className="muted">{t("mainEvents.empty")}</li> : null}
       </ul>
+      {mainEvents.length === 0 ? <p className="empty-state">{t("mainEvents.empty")}</p> : null}
       {canManage ? (
       <details className="main-events-create">
       <summary>{t("mainEvents.form.toggle")}</summary>
