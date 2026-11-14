@@ -19,6 +19,22 @@ each entry from the Conventional Commits on `main` in its release PR
   that use `ctx.rawBody` must check that it exists, since cores up to and
   including v0.21.0 do not have it.
 
+## [0.22.0](https://github.com/containerguy/Matchdesk/compare/v0.21.0...v0.22.0) (2026-11-14)
+
+
+### Features
+
+* **events:** Runden-Board mit Beitreten und Archivieren als Zeilenaktion ([5426b98](https://github.com/containerguy/Matchdesk/commit/5426b98526e90233fe4691f2b0ed4b56ef7736f7))
+* **events:** Rundenformular-Feld heißt jetzt „Gehört zu“ (HCI-125) ([e17947a](https://github.com/containerguy/Matchdesk/commit/e17947aaa262a3cf83905f0bcb908212c7166019))
+* P4 Neue Runde anlegen: Handy und Desktop gleich (HCI-111) ([e54438e](https://github.com/containerguy/Matchdesk/commit/e54438e290f8f86809d359feea232e74630e096b))
+* **ui:** Anmeldung und Rundnachricht ohne Aufklappen erreichbar (HCI-124) ([58bc2f5](https://github.com/containerguy/Matchdesk/commit/58bc2f5d9dec99ed34b4fd3884c1e9ff550c74a5))
+* **ui:** Sammelseite „Mitmachen“ für alle Modulseiten, Hauptmenü von 11 auf 4 Punkte (HCI-113) ([db3aa62](https://github.com/containerguy/Matchdesk/commit/db3aa62cbd906a1913d90257ad9915d6e8158056))
+
+
+### Bug Fixes
+
+* **styles:** [@media](https://github.com/media)-Block schließen, .module-secret* wieder global ([c8dc426](https://github.com/containerguy/Matchdesk/commit/c8dc426cda9ca1af0836d2f36dd94ed0ffc1905f))
+
 ## v0.21.0 — Module credentials in the admin, consistent UI, tool updates (2026-11-05)
 
 ### Upgrade note
