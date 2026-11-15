@@ -3796,6 +3796,7 @@ ul.device-list {
  *   genauso aus wie Knöpfe. In Listenzeilen (.device-actions) sind alle Knöpfe kompakt.
  * - Badges: .badge mit --ok, --warn, --danger für Zustände.
  * - Listenzeilen: .item-title (Name, Version, Badges), .item-sub (graue Zusatzzeile).
+ * - Reiterleiste: .tab-strip mit --filter als zweiter Ebene (siehe unten, HCI-274).
  */
 .button-link {
   display: inline-flex;
@@ -3894,6 +3895,93 @@ ul.device-list {
 
 .item-sub code {
   font-size: 0.82rem;
+}
+
+/*
+ * Reiterleiste (HCI-274, Bauplan HCI-152 AP0): waagerechte Reihe anklickbarer Reiter, für
+ * Event-Extras (AP3–AP5) und künftige Seiten mit mehreren Unteransichten. Markup:
+ *   <div class="tab-strip" role="tablist" aria-label="…">
+ *     <button class="tab-strip__tab active" role="tab" aria-selected="true">
+ *       Verleihliste <span class="tab-strip__dot" aria-hidden="true"></span>
+ *     </button>
+ *     <button class="tab-strip__tab" role="tab" aria-selected="false">Kostenbeitrag</button>
+ *   </div>
+ * `.tab-strip__dot` markiert „hier ist etwas offen" (z. B. eine neue Verleihanfrage); die Farbe
+ * ist `var(--amber)`, keine neue Farbe. Ausgewählt wird entweder über die
+ * Klasse `.active` (wie .side-nav a.active) oder über `aria-selected="true"` erkannt, je danach,
+ * was die aufrufende Seite setzt. Variante `.tab-strip--filter` ist eine kleinere, zweite Leiste
+ * für Filterreiter unter der Hauptleiste (gleiche kompakte Höhe wie .device-actions button).
+ * `.tab-strip` rollt mit `overflow-x: auto` selbst; Reiter bekommen `flex: 0 0 auto`, damit sie
+ * nicht umbrechen. Geprüfte Vorfahren der Modulseite (.side-layout, .side-content,
+ * .page-card > section) haben bereits `minmax(0, 1fr)` bzw. `min-width: 0`, deshalb reicht
+ * `min-width: 0` hier auf dem Baustein selbst, ohne bestehende Klassen zu ändern.
+ */
+.tab-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.tab-strip__tab {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tab-strip__tab:hover {
+  border-color: var(--teal);
+}
+
+.tab-strip__tab:focus-visible {
+  outline: 3px solid rgba(15, 118, 110, 0.25);
+  outline-offset: 2px;
+}
+
+.tab-strip__tab.active,
+.tab-strip__tab[aria-selected="true"] {
+  background: var(--ink);
+  color: #ffffff;
+  border-color: var(--ink);
+}
+
+.tab-strip__dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+.tab-strip__tab.active .tab-strip__dot,
+.tab-strip__tab[aria-selected="true"] .tab-strip__dot {
+  background: #ffffff;
+}
+
+/* Filterreiter: zweite, kleinere Ebene unter der Hauptleiste, kompakte Höhe wie .device-actions. */
+.tab-strip--filter {
+  gap: 4px;
+}
+
+.tab-strip--filter .tab-strip__tab {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 0.92rem;
 }
 
 /*
@@ -4098,6 +4186,7 @@ legend {
  *   .device-row--selectable / .device-row--selected   Zeile mit Auswahlkästchen
  *   .bulk-bar   Sammelleiste über einer Liste („n ausgewählt" plus Aktionen)
  *   .badge(--ok|--warn|--danger), .button-link(.secondary), button(.secondary|.danger)
+ *   .tab-strip(--filter)   Reiterleiste für mehrere Unteransichten einer Modulseite
  */
 .page-card {
   display: grid;
