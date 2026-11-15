@@ -1,5 +1,5 @@
 import type React from "react";
-import type { User } from "../types/core";
+import type { MainEventParticipation, User } from "../types/core";
 
 /** Was GET /api/modules je aktivem Modul liefert. */
 export type RuntimeModuleInfo = {
@@ -12,6 +12,8 @@ export type RuntimeModuleInfo = {
   profile?: { label: string; order: number } | null;
   /** Zeigt `Notice` oben auf der Startseite. */
   startNotice?: boolean;
+  /** Zeigt `EventNotice` in jeder Event-Karte unter „Events". */
+  eventNotice?: boolean;
   permissions: string[];
   menu: Array<{ path: string; label: string; icon: string | null; order: number }>;
   i18n: { de: Record<string, string>; en: Record<string, string> };
@@ -56,6 +58,13 @@ export type ModuleProfileProps = { user: User };
 
 export type ModuleNoticeProps = { user: User };
 
+export type ModuleEventNoticeProps = {
+  user: User;
+  mainEventId: string;
+  myParticipation: MainEventParticipation | null;
+  permissions: string[];
+};
+
 export type ModuleClientDefinition = {
   Page?: React.ComponentType<ModulePageProps>;
   Admin?: React.ComponentType<ModuleAdminProps>;
@@ -63,6 +72,8 @@ export type ModuleClientDefinition = {
   Profile?: React.ComponentType<ModuleProfileProps>;
   /** Hinweis auf der Startseite (Manifest `startNotice`); rendert `null`, wenn nichts zu sagen ist. */
   Notice?: React.ComponentType<ModuleNoticeProps>;
+  /** Hinweiszeile in einer Event-Karte (Manifest `eventNotice`); rendert `null`, wenn nichts zu sagen ist. */
+  EventNotice?: React.ComponentType<ModuleEventNoticeProps>;
 };
 
 export type ModuleClientFactory = (host: ModuleClientHost) => ModuleClientDefinition;

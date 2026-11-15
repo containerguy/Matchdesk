@@ -1,5 +1,5 @@
 import React, { FormEvent, useEffect, useState } from "react";
-import type { MainEvent } from "../types/core";
+import type { MainEvent, User } from "../types/core";
 import {
   MainEventInfosEditor,
   MainEventParticipantList,
@@ -12,6 +12,8 @@ import { getErrorMessage } from "../errors/errors";
 import { useI18n } from "../i18n/I18nContext";
 import type { MessageKey } from "../i18n/catalog/index";
 import { fromDatetimeLocal } from "../lib/event-format";
+import { ModuleEventNotices } from "../modules/runtime";
+import type { RuntimeModuleInfo } from "../modules/types";
 import { subscribeEventsChanged } from "../realtime/events-changed-bus";
 
 const statusLabels: Record<MainEvent["status"], MessageKey> = {
@@ -44,7 +46,10 @@ const emptyDraft = {
 export function MainEventsPanel({
   canManage = true,
   canManageEvent,
-  showInfosLink = false
+  showInfosLink = false,
+  runtimeModules = [],
+  currentUser,
+  locale: moduleLocale
 }: {
   /** Globales Recht: Events anlegen und alle verwalten. */
   canManage?: boolean;
@@ -52,9 +57,16 @@ export function MainEventsPanel({
   canManageEvent?: (mainEventId: string) => boolean;
   /** Link zur Unterseite „Infos" zeigen (Admin hat den allgemeinen Infotext eingeschaltet). */
   showInfosLink?: boolean;
+  /** Aktive Module, für Hinweiszeilen in jeder Event-Karte (Manifest `eventNotice`). */
+  runtimeModules?: RuntimeModuleInfo[];
+  /** Angemeldeter Benutzer, an Modul-Hinweiszeilen weitergegeben. */
+  currentUser?: User | null;
+  /** Sprache für Modul-Hinweiszeilen; ohne Angabe die Sprache der Oberfläche. */
+  locale?: string;
 }) {
   const manages = (mainEventId: string) => canManage || Boolean(canManageEvent?.(mainEventId));
   const { t, locale } = useI18n();
+  const effectiveModuleLocale = moduleLocale ?? locale;
   const dateFormatter = new Intl.DateTimeFormat(locale === "en" ? "en-US" : "de-DE", {
     dateStyle: "medium",
     timeStyle: "short"
@@ -363,6 +375,15 @@ export function MainEventsPanel({
                     </button>
                   ) : null}
                 </div>
+              ) : null}
+              {currentUser ? (
+                <ModuleEventNotices
+                  modules={runtimeModules}
+                  locale={effectiveModuleLocale}
+                  user={currentUser}
+                  mainEventId={mainEvent.id}
+                  myParticipation={mainEvent.myParticipation}
+                />
               ) : null}
               {manages(mainEvent.id) && mainEvent.visibility === "private" && mainEvent.status !== "ended" ? (
                 <div className="main-event-invites">

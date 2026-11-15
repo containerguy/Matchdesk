@@ -99,7 +99,10 @@ export function loadClientModule(info: RuntimeModuleInfo, locale: string): Promi
   return promise;
 }
 
-class ModuleErrorBoundary extends React.Component<{ moduleId: string; children: React.ReactNode }, { error: Error | null }> {
+class ModuleErrorBoundary extends React.Component<
+  { moduleId: string; quiet?: boolean; children: React.ReactNode },
+  { error: Error | null }
+> {
   state = { error: null as Error | null };
 
   static getDerivedStateFromError(error: Error) {
@@ -112,6 +115,9 @@ class ModuleErrorBoundary extends React.Component<{ moduleId: string; children: 
 
   render() {
     if (this.state.error) {
+      // Hinweis-Slots (Notice, EventNotice) brauchen keinen roten Block: eine Karte, die wegen
+      // eines abgestürzten Hinweises verschwindet, wäre schlimmer als der fehlende Hinweis.
+      if (this.props.quiet) return null;
       return (
         <section className="notice" role="alert">
           <strong>Modul „{this.props.moduleId}“ ist abgestürzt.</strong>
@@ -162,7 +168,11 @@ export function ModuleSlot({
   if (!state.definition) return quiet ? null : <p className="muted">…</p>;
   const Component = pick(state.definition);
   if (!Component) return <>{fallback ?? null}</>;
-  return <ModuleErrorBoundary moduleId={info.id}>{render(Component)}</ModuleErrorBoundary>;
+  return (
+    <ModuleErrorBoundary moduleId={info.id} quiet={quiet}>
+      {render(Component)}
+    </ModuleErrorBoundary>
+  );
 }
 
 /** Hinweise aktiver Module oben auf der Startseite (Manifest `startNotice`). */
@@ -181,6 +191,43 @@ export function ModuleNotices({ modules, locale, user }: { modules: RuntimeModul
             render={(Notice) => {
               const Component = Notice as unknown as React.ComponentType<import("./types").ModuleNoticeProps>;
               return <Component user={user} />;
+            }}
+          />
+        ))}
+    </>
+  );
+}
+
+/** Hinweiszeilen aktiver Module in einer Event-Karte unter „Events" (Manifest `eventNotice`). */
+export function ModuleEventNotices({
+  modules,
+  locale,
+  user,
+  mainEventId,
+  myParticipation,
+}: {
+  modules: RuntimeModuleInfo[];
+  locale: string;
+  user: User;
+  mainEventId: string;
+  myParticipation: import("../types/core").MainEventParticipation | null;
+}) {
+  return (
+    <>
+      {modules
+        .filter((info) => info.eventNotice && info.clientUrl)
+        .map((info) => (
+          <ModuleSlot
+            key={info.id}
+            info={info}
+            locale={locale}
+            quiet
+            pick={(definition) => definition.EventNotice as React.ComponentType<never> | undefined}
+            render={(EventNotice) => {
+              const Component = EventNotice as unknown as React.ComponentType<import("./types").ModuleEventNoticeProps>;
+              return (
+                <Component user={user} mainEventId={mainEventId} myParticipation={myParticipation} permissions={info.permissions} />
+              );
             }}
           />
         ))}

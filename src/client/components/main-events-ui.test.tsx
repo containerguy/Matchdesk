@@ -661,4 +661,69 @@ describe("Events mit Start und Ende – Oberfläche", () => {
     ]);
     await rendered.cleanup();
   });
+
+  it("HCI-275: renders an eventNotice module in every visible card, even ended ones, with the right mainEventId and re-renders on participation change", async () => {
+    let events = [
+      mainEvent({ id: "m-1", name: "LAN Herbst", status: "running", myParticipation: null }),
+      mainEvent({ id: "m-2", name: "Frühjahr", status: "ended" })
+    ];
+    requestMock.mockImplementation(async (url: string, options?: RequestInit) => {
+      if (options?.method === "POST" && url.endsWith("/participation")) {
+        events = events.map((entry) => (entry.id === "m-1" ? { ...entry, myParticipation: "joined" } : entry));
+        return { mainEvent: events[0] };
+      }
+      if (url === "/api/main-events") return { mainEvents: events };
+      throw new Error(`unexpected ${url}`);
+    });
+    const clientUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(
+      `// HCI-275-main-events-ui\nexport default (host) => ({
+        EventNotice: (props) => host.React.createElement(
+          "span",
+          { className: "event-notice-demo" },
+          props.mainEventId + ":" + props.myParticipation
+        )
+      });`
+    )}`;
+    const module = {
+      id: "demo",
+      version: "1.0.0",
+      name: "Demo",
+      clientUrl,
+      adminPage: false,
+      eventNotice: true,
+      permissions: [],
+      menu: [],
+      i18n: { de: {}, en: {} }
+    };
+    const rendered = await render(
+      <MainEventsPanel canManage={false} runtimeModules={[module]} currentUser={manager} />
+    );
+    await act(async () => {
+      await flush();
+    });
+    const notices = Array.from(rendered.container.querySelectorAll(".event-notice-demo")).map((el) => el.textContent);
+    expect(notices).toEqual(["m-1:null", "m-2:null"]);
+
+    const join = Array.from(rendered.container.querySelectorAll(".main-event-participation button")).find(
+      (button) => button.textContent === "Dabei"
+    ) as HTMLButtonElement;
+    await act(async () => {
+      join.click();
+      await flush();
+    });
+    expect(rendered.container.querySelector(".event-notice-demo")?.textContent).toBe("m-1:joined");
+    await rendered.cleanup();
+  });
+
+  it("stays pixel-identical without an eventNotice module", async () => {
+    installRequests([mainEvent({})]);
+    const withoutModules = await render(<MainEventsPanel canManage={false} currentUser={manager} />);
+    const without = withoutModules.container.innerHTML;
+    await withoutModules.cleanup();
+
+    installRequests([mainEvent({})]);
+    const bare = await render(<MainEventsPanel canManage={false} />);
+    expect(bare.container.innerHTML).toBe(without);
+    await bare.cleanup();
+  });
 });

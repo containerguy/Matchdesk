@@ -173,6 +173,9 @@ export function createCoreModule(moduleAdminSections: AdminNavEntry[]): AppModul
               canManage={hasPermission(ctx.currentUser, "main_events.manage")}
               canManageEvent={(mainEventId) => hasPermission(ctx.currentUser, "main_events.manage", mainEventId)}
               showInfosLink={ctx.settings.infosEnabled}
+              runtimeModules={ctx.runtimeModules}
+              currentUser={ctx.currentUser}
+              locale={ctx.locale}
             />
           ) : (
             <LoginRequired eyebrowKey="main.nav.mainEvents" />
