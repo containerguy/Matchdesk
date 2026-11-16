@@ -19,6 +19,18 @@ each entry from the Conventional Commits on `main` in its release PR
   that use `ctx.rawBody` must check that it exists, since cores up to and
   including v0.21.0 do not have it.
 
+## [0.23.0](https://github.com/containerguy/Matchdesk/compare/v0.22.0...v0.23.0) (2026-11-15)
+
+
+### Features
+
+* **ui:** Baustein Reiterleiste .tab-strip (HCI-274) ([ee47d29](https://github.com/containerguy/Matchdesk/commit/ee47d29fab92f352a46ebbc097df648001a2082b))
+
+
+### Bug Fixes
+
+* **deps:** aws-sdk/xml-builder auf 3.972.43 heben (Dependabot [#70](https://github.com/containerguy/Matchdesk/issues/70)) ([bffa198](https://github.com/containerguy/Matchdesk/commit/bffa198573d6492194f6a6268a9d23c228097ec2))
+
 ## [0.22.0](https://github.com/containerguy/Matchdesk/compare/v0.21.0...v0.22.0) (2026-11-14)
 
 
