@@ -108,14 +108,14 @@ export function EventInfoChannels() {
                     disabled={busy}
                     onChange={() => void toggle(state.unsubscribed ? { ...channel, enabled: false } : channel)}
                   />
-                  <span>
-                    {channel.label[locale] ?? channel.label.de}
+                  <div>
+                    <span className="item-title">{channel.label[locale] ?? channel.label.de}</span>
                     {!channel.available ? (
                       <span className="item-sub">
                         {channel.unavailableHint?.[locale] ?? t("notifications.channels.unavailable")}
                       </span>
                     ) : null}
-                  </span>
+                  </div>
                 </label>
                 {link ? (
                   <a className="button-link secondary" href={link.href}>

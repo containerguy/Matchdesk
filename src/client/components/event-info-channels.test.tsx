@@ -48,5 +48,9 @@ describe("EventInfoChannels", () => {
     expect(hrefs).toContain("#login/m-telegram");
     expect(hrefs).toContain("#login/geraete");
     expect(container.querySelectorAll(".device-row")).toHaveLength(3);
+    const text = container.querySelector("label.checkbox-row > div:has(.item-sub)") as HTMLElement;
+    expect(text.children[0].className).toBe("item-title");
+    expect(text.children[1].className).toBe("item-sub");
+    expect(text.children[1].textContent).toBe("fehlt");
   });
 });
