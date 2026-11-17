@@ -3990,11 +3990,13 @@ ul.device-list {
  *   <div class="bulk-bar"><strong>2 ausgewählt</strong> …Knöpfe…</div>
  *   <ul class="device-list">
  *     <li class="device-row device-row--selectable device-row--selected">
- *       <input type="checkbox" aria-label="…" /> <div>…Infos…</div>
+ *       <label class="row-select"><input type="checkbox" aria-label="…" /></label>
+ *       <div>…Infos…</div>
  *       <div class="device-actions">…</div>
  *     </li>
  *   </ul>
  * Das Kästchen braucht einen eigenen Namen (`aria-label`), weil die Zeile kein Label trägt.
+ * Die `label`-Hülle ist nur Trefferfläche und bleibt ohne Text.
  */
 .device-row--selectable {
   display: grid;
@@ -4003,9 +4005,26 @@ ul.device-list {
   gap: 10px 12px;
 }
 
-.device-row--selectable > input[type="checkbox"] {
+/*
+ * Trefferfläche des Kästchens: Das sichtbare Kästchen bleibt 22 px, die Hülle ist 44 px groß
+ * und ragt per negativem Außenmaß in die Polsterung der Zeile. Spaltenbreite und Zeilenhöhe
+ * bleiben dadurch unverändert, auf dem Handy trifft man die volle Zeilenhöhe.
+ */
+.device-row--selectable > .row-select {
+  display: grid;
+  grid-template-columns: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -11px;
+  gap: 0;
+  cursor: pointer;
+}
+
+.device-row--selectable > .row-select > input[type="checkbox"] {
   width: 22px;
   height: 22px;
+  margin: 0;
   cursor: pointer;
 }
 
@@ -4184,6 +4203,7 @@ legend {
  *   .more-menu     „Mehr“-Knopf mit Aktionsliste (bleibt ein Knopf, kein Abschnitt)
  *   .device-list / .device-row / .item-title / .item-sub / .device-actions   Listenzeilen
  *   .device-row--selectable / .device-row--selected   Zeile mit Auswahlkästchen
+ *   .row-select   44-px-Trefferfläche um das Auswahlkästchen einer Zeile
  *   .bulk-bar   Sammelleiste über einer Liste („n ausgewählt" plus Aktionen)
  *   .badge(--ok|--warn|--danger), .button-link(.secondary), button(.secondary|.danger)
  *   .tab-strip(--filter)   Reiterleiste für mehrere Unteransichten einer Modulseite

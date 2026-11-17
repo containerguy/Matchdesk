@@ -226,6 +226,14 @@ describe("EventBoard – Mehrfachauswahl im Runden-Board (HCI-110)", () => {
     ) as HTMLInputElement[];
     expect(checkboxes).toHaveLength(2);
 
+    // HCI-312: Das Kästchen steckt in einer `label.row-select`-Hülle, die ihm 44 px
+    // Trefferfläche gibt. Ohne die Hülle wäre nur das 22-px-Kästchen selbst treffbar.
+    for (const checkbox of checkboxes) {
+      const hitArea = checkbox.closest("label.row-select");
+      expect(hitArea).toBeTruthy();
+      expect(hitArea!.parentElement!.classList.contains("device-row--selectable")).toBe(true);
+    }
+
     await act(async () => {
       checkboxes[0].click();
       checkboxes[1].click();
