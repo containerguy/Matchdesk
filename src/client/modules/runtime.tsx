@@ -2,7 +2,16 @@ import React, { useEffect, useState } from "react";
 import * as ReactDOM from "react-dom";
 import { requestJson } from "../api/request";
 import type { User } from "../types/core";
-import type { ModuleClientDefinition, ModuleClientFactory, ModuleClientHost, RuntimeModuleInfo } from "./types";
+import type {
+  ModuleClientDefinition,
+  ModuleClientFactory,
+  ModuleClientHost,
+  ModuleEventNoticeProps,
+  ModuleNoticeProps,
+  ModulePageProps,
+  ModuleProfileProps,
+  RuntimeModuleInfo,
+} from "./types";
 
 export const CLIENT_MODULE_API = 1;
 
@@ -189,7 +198,7 @@ export function ModuleNotices({ modules, locale, user }: { modules: RuntimeModul
             quiet
             pick={(definition) => definition.Notice as React.ComponentType<never> | undefined}
             render={(Notice) => {
-              const Component = Notice as unknown as React.ComponentType<import("./types").ModuleNoticeProps>;
+              const Component = Notice as unknown as React.ComponentType<ModuleNoticeProps>;
               return <Component user={user} />;
             }}
           />
@@ -224,7 +233,7 @@ export function ModuleEventNotices({
             quiet
             pick={(definition) => definition.EventNotice as React.ComponentType<never> | undefined}
             render={(EventNotice) => {
-              const Component = EventNotice as unknown as React.ComponentType<import("./types").ModuleEventNoticeProps>;
+              const Component = EventNotice as unknown as React.ComponentType<ModuleEventNoticeProps>;
               return (
                 <Component user={user} mainEventId={mainEventId} myParticipation={myParticipation} permissions={info.permissions} />
               );
@@ -244,7 +253,7 @@ export function ModuleProfileSection({ info, locale, user }: { info: RuntimeModu
       pick={(definition) => definition.Profile as React.ComponentType<never> | undefined}
       fallback={<p className="empty-state">Dieses Modul hat keinen Profilbereich.</p>}
       render={(Profile) => {
-        const Component = Profile as unknown as React.ComponentType<import("./types").ModuleProfileProps>;
+        const Component = Profile as unknown as React.ComponentType<ModuleProfileProps>;
         return <Component user={user} />;
       }}
     />
@@ -306,7 +315,7 @@ export function ModuleMenuEntryPage({
         pick={(definition) => definition.Page as React.ComponentType<never> | undefined}
         fallback={<p className="empty-state">Dieses Modul hat keine eigene Seite.</p>}
         render={(Page) => {
-          const Component = Page as unknown as React.ComponentType<import("./types").ModulePageProps>;
+          const Component = Page as unknown as React.ComponentType<ModulePageProps>;
           return <Component path={entry.path} subPath={subPath} user={user} permissions={info.permissions} />;
         }}
       />
