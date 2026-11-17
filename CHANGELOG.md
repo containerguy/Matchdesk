@@ -19,6 +19,13 @@ each entry from the Conventional Commits on `main` in its release PR
   that use `ctx.rawBody` must check that it exists, since cores up to and
   including v0.21.0 do not have it.
 
+## [0.24.0](https://github.com/containerguy/Matchdesk/compare/v0.23.0...v0.24.0) (2026-11-17)
+
+
+### Features
+
+* **modules:** Modul-Slot EventNotice je Event-Karte (HCI-275, [#75](https://github.com/containerguy/Matchdesk/issues/75)) ([42c171f](https://github.com/containerguy/Matchdesk/commit/42c171f64953b86e3fd2d50d4c9c05c8ede077e8))
+
 ## [0.23.0](https://github.com/containerguy/Matchdesk/compare/v0.22.0...v0.23.0) (2026-11-15)
 
 
