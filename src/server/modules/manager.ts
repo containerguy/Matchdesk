@@ -1105,6 +1105,7 @@ export function createModuleManager(context: DatabaseContext, options: ModuleMan
             ? { label: localize(manifest.profile.label, user.locale ?? undefined), order: manifest.profile.order }
             : null,
           startNotice: manifest.startNotice,
+          eventNotice: manifest.eventNotice,
           permissions,
           menu: manifest.menu
             .filter((entry) => !entry.permission || permissions.includes(entry.permission))
