@@ -2931,6 +2931,7 @@ dd {
   grid-template-columns: 220px minmax(0, 1fr);
   gap: clamp(20px, 3vw, 32px);
   align-items: start;
+  align-content: start;
 }
 
 .side-nav {
