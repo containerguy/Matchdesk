@@ -137,12 +137,15 @@ export function EventCard({
       }`}
     >
       {selectable ? (
-        <input
-          type="checkbox"
-          checked={selected}
-          onChange={onToggleSelected}
-          aria-label={t("events.bulk.selectRound", { title: event.gameTitle })}
-        />
+        // Die Hülle ist nur Trefferfläche (44 px, siehe `.row-select`); der Name steht am Kästchen.
+        <label className="row-select">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={onToggleSelected}
+            aria-label={t("events.bulk.selectRound", { title: event.gameTitle })}
+          />
+        </label>
       ) : null}
       <div>
         <p className="item-title">
