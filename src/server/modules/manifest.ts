@@ -68,7 +68,12 @@ export const moduleManifestSchema = z
     adminPage: z.boolean().default(false),
     /** Eigener Bereich im Profil (`#login/m-<id>`), gerendert von `Profile` aus client.mjs. */
     profile: z
-      .object({ label: localizedTextSchema, order: z.number().int().min(0).max(1000).default(50) })
+      .object({
+        label: localizedTextSchema,
+        order: z.number().int().min(0).max(1000).default(50),
+        /** Nur sichtbar mit diesem Recht; fehlt es, sehen alle Angemeldeten den Bereich. */
+        permission: z.string().optional()
+      })
       .optional(),
     /** Hinweis oben auf der Startseite, gerendert von `Notice` aus client.mjs (z. B. „Spielkonten nachtragen“). */
     startNotice: z.boolean().default(false),
@@ -98,6 +103,9 @@ export const moduleManifestSchema = z
       if (entry.permission && !keys.has(entry.permission)) {
         issue.addIssue({ code: "custom", message: `Menüpunkt verweist auf unbekanntes Recht ${entry.permission}` });
       }
+    }
+    if (manifest.profile?.permission && !keys.has(manifest.profile.permission)) {
+      issue.addIssue({ code: "custom", message: `Profilbereich verweist auf unbekanntes Recht ${manifest.profile.permission}` });
     }
     if (manifest.settings && manifest.settings.type !== "object") {
       issue.addIssue({ code: "custom", message: "settings muss ein JSON-Schema vom Typ object sein" });

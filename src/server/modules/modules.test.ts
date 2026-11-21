@@ -11,6 +11,7 @@ import { sha256, type ModuleFetch } from "./source-fetch";
 import { createTarGz } from "./tar";
 import { createDb } from "../db/client";
 import { listNotificationChannels, notifyUsers } from "../notifications/dispatcher";
+import { moduleManifestSchema } from "./manifest";
 
 type StartedApp = Awaited<ReturnType<typeof createMatchdeskApp>>;
 
@@ -101,6 +102,7 @@ function demoManifest(version: string, extra: Record<string, unknown> = {}) {
       { path: "", label: "Demo", order: 40 },
       { path: "verwaltung", label: "Demo-Verwaltung", order: 41, permission: "demo.manage" }
     ],
+    profile: { label: "Demo-Konto", order: 20, permission: "demo.manage" },
     tables: ["demo_notes"],
     ...extra
   };
@@ -305,6 +307,7 @@ describe("Modulverwaltung", () => {
         clientUrl: "/modules/demo/1.0.0/client.mjs",
         permissions: ["demo.write"],
         menu: [expect.objectContaining({ path: "", label: "Demo" })],
+        profile: null,
         i18n: { de: { "demo.title": "Demo" }, en: {} }
       })
     ]);
@@ -326,7 +329,9 @@ describe("Modulverwaltung", () => {
       .send({ permissionKey: "demo.manage" })
       .expect((response) => expect(response.status).toBeLessThan(300));
     expect((await player.agent.get("/api/m/demo/hello").expect(200)).body.canManage).toBe(true);
-    expect((await player.agent.get("/api/modules").expect(200)).body.modules[0].menu).toHaveLength(2);
+    const granted = (await player.agent.get("/api/modules").expect(200)).body.modules[0];
+    expect(granted.menu).toHaveLength(2);
+    expect(granted.profile).toEqual({ label: "Demo-Konto", order: 20 });
 
     // Client-Datei gleiche Herkunft; Server-Code wird nicht ausgeliefert
     const client = await request(app.app).get("/modules/demo/1.0.0/client.mjs").expect(200);
@@ -693,5 +698,14 @@ describe("Modulverwaltung", () => {
     const module = (await admin.agent.get("/api/admin/modules/demo").expect(200)).body.module;
     expect(module).toEqual(expect.objectContaining({ state: "enabled", running: false }));
     expect(module.error).toContain("Prüfsumme");
+  });
+});
+
+describe("Manifest profile.permission", () => {
+  it("rejects an unknown permission", () => {
+    const result = moduleManifestSchema.safeParse(
+      demoManifest("1.0.0", { profile: { label: "X", permission: "demo.gibtsnicht" } })
+    );
+    expect(result.success).toBe(false);
   });
 });
