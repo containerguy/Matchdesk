@@ -827,6 +827,8 @@ export const deMessages = {
   "notifications.channels.title": "Wie sollen Event-Infos dich erreichen?",
   "notifications.channels.intro": "Rundnachrichten und Erinnerungen zu Events kommen über alle Kanäle, die du hier einschaltest. Login-Codes kommen immer per Mail.",
   "notifications.channels.unsubscribed": "Du hast Event-Infos über den Abmeldelink abbestellt. Schalte einen Kanal ein, um sie wieder zu bekommen.",
+  "notifications.channels.setup": "Einrichten",
+  "notifications.channels.devices": "Geräte",
   "notifications.channels.unavailable": "noch nicht eingerichtet",
   "broadcast.toggle": "Rundnachricht schicken",
   "broadcast.subject": "Betreff",

@@ -828,6 +828,8 @@ export const enMessages: { [K in keyof typeof deMessages]: string } = {
   "notifications.channels.title": "How should event updates reach you?",
   "notifications.channels.intro": "Announcements and reminders for events arrive on every channel you turn on here. Sign-in codes always arrive by email.",
   "notifications.channels.unsubscribed": "You unsubscribed from event updates via the link. Turn on a channel to receive them again.",
+  "notifications.channels.setup": "Set up",
+  "notifications.channels.devices": "Devices",
   "notifications.channels.unavailable": "not set up yet",
   "broadcast.toggle": "Send announcement",
   "broadcast.subject": "Subject",

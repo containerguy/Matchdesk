@@ -12,6 +12,8 @@ type ChannelChoice = {
   unavailableHint: { de: string; en: string } | null;
 };
 
+type ProfileModule = { id: string; profile?: { label: string } | null };
+
 type ChannelsResponse = { channels: ChannelChoice[]; unsubscribed: boolean };
 
 /** Profil: über welche Kanäle man Event-Infos (Rundnachrichten, Erinnerungen) bekommt. */
@@ -21,6 +23,7 @@ export function EventInfoChannels() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [calendarPath, setCalendarPath] = useState<string | null>(null);
+  const [profileModuleIds, setProfileModuleIds] = useState<Set<string>>(new Set());
 
   async function loadCalendar(renew = false) {
     try {
@@ -40,6 +43,28 @@ export function EventInfoChannels() {
       .then((result) => setState(Array.isArray(result?.channels) ? result : null))
       .catch((caught) => setError(getErrorMessage(caught, locale)));
   }, []);
+
+  useEffect(() => {
+    requestJson<{ modules: ProfileModule[] }>("/api/modules")
+      .then((result) =>
+        setProfileModuleIds(new Set((result?.modules ?? []).filter((info) => info.profile).map((info) => info.id)))
+      )
+      .catch(() => undefined);
+  }, []);
+
+  /** Wohin man in der Zeile zum Einrichten kommt: Profilbereich des Moduls, bei Push die Geräte. */
+  function setupLink(channel: ChannelChoice) {
+    if (channel.available) return null;
+    if (channel.moduleId) {
+      return profileModuleIds.has(channel.moduleId)
+        ? { href: `#login/m-${channel.moduleId}`, label: t("notifications.channels.setup") }
+        : null;
+    }
+    if (channel.id === "push") {
+      return { href: "#login/geraete", label: t("notifications.channels.devices") };
+    }
+    return null;
+  }
 
   async function toggle(channel: ChannelChoice) {
     setBusy(true);
@@ -72,23 +97,34 @@ export function EventInfoChannels() {
       {error ? <p className="error">{error}</p> : null}
       {state ? (
         <div className="event-info-channel-list">
-          {state.channels.map((channel) => (
-            <label key={channel.id} className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={channel.enabled && !state.unsubscribed}
-                disabled={busy}
-                onChange={() => void toggle(state.unsubscribed ? { ...channel, enabled: false } : channel)}
-              />
-              {channel.label[locale] ?? channel.label.de}
-              {!channel.available ? (
-                <span className="muted">
-                  {" "}
-                  ({channel.unavailableHint?.[locale] ?? t("notifications.channels.unavailable")})
-                </span>
-              ) : null}
-            </label>
-          ))}
+          {state.channels.map((channel) => {
+            const link = setupLink(channel);
+            return (
+              <div key={channel.id} className="device-row">
+                <label className="checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={channel.enabled && !state.unsubscribed}
+                    disabled={busy}
+                    onChange={() => void toggle(state.unsubscribed ? { ...channel, enabled: false } : channel)}
+                  />
+                  <div>
+                    <span className="item-title">{channel.label[locale] ?? channel.label.de}</span>
+                    {!channel.available ? (
+                      <span className="item-sub">
+                        {channel.unavailableHint?.[locale] ?? t("notifications.channels.unavailable")}
+                      </span>
+                    ) : null}
+                  </div>
+                </label>
+                {link ? (
+                  <a className="button-link secondary" href={link.href}>
+                    {link.label}
+                  </a>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       ) : null}
       <div className="event-info-calendar">
