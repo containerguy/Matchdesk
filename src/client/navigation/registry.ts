@@ -14,7 +14,8 @@ import type { RuntimeModuleInfo } from "../modules/types";
  * Laufzeit-Module (installiert über `GET /api/modules`, z. B. Pizza) bekommen dagegen **keinen**
  * eigenen Hauptmenüpunkt: Ihre Menüeinträge erscheinen nur unter der festen Sammelseite
  * „Mitmachen" (`id: "mitmachen"` in `createCoreModule`), damit die Zahl der Hauptmenüpunkte nicht
- * von der Zahl der installierten Module abhängt (Befund B4). Siehe `moduleMenuEntries` und
+ * von der Zahl der installierten Module abhängt (Befund B4). Einträge mit `section: "games"` landen
+ * stattdessen unter der zweiten festen Sammelseite „Spiele“ (`id: "games"`). Siehe `moduleMenuEntries` und
  * `resolveModuleMenuEntry` in `../modules/runtime`.
  */
 
@@ -45,6 +46,8 @@ export type NavPage = {
   /** SVG-Pfad (24×24) für die mobile Tab-Leiste. */
   icon: string;
   hero: (t: TFunction, ctx: NavContext) => PageHero;
+  /** Ohne Seitenkopf: die Seite gestaltet die Fläche selbst (z. B. „Spiele“ mit eingebettetem Spiel). */
+  bare?: boolean;
   /**
    * Gibt es die Seite gerade überhaupt (z. B. Modul eingeschaltet)? Abgeschaltete Seiten sind
    * auch per Hash nicht erreichbar. Fehlt der Eintrag, ist die Seite immer da.

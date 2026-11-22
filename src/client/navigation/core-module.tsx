@@ -11,7 +11,8 @@ import {
   ModuleNotices,
   ModuleProfileSection,
   moduleMenuEntries,
-  resolveModuleMenuEntry
+  resolveModuleMenuEntry,
+  type ModuleMenuEntry
 } from "../modules/runtime";
 import { type ProfileSectionId, profileSectionIds } from "../components/LoginPanel";
 import { LoginRequired } from "./LoginRequired";
@@ -108,6 +109,34 @@ function firstSegment(subPath: string) {
 function ModuleMenuEmpty() {
   const { t } = useI18n();
   return <p className="empty-state">{t("main.mitmachen.empty")}</p>;
+}
+
+/**
+ * Spieleauswahl unter „Spiele“ (`#games`): eine Kachel je Spiele-Eintrag eines Moduls. Mit nur einem
+ * Eintrag zeigt die Seite direkt dessen Modulseite (z. B. eine Spieleauswahl des Moduls selbst).
+ */
+function GamesIndex({ entries }: { entries: ModuleMenuEntry[] }) {
+  const { t } = useI18n();
+  if (entries.length === 0) return <p className="empty-state">{t("main.games.empty")}</p>;
+  return (
+    <section className="page-card games-index" aria-labelledby="games-index-title">
+      <h1 id="games-index-title">{t("main.route.games.title")}</h1>
+      <p className="muted">{t("main.games.pick")}</p>
+      <ul className="games-grid">
+        {entries.map(({ entry, slug }) => (
+          <li key={slug}>
+            <a className="games-tile" href={`#games/${slug}`}>
+              <svg className="games-tile__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d={entry.icon ?? NAV_ICONS.games} fill="currentColor" />
+              </svg>
+              <strong>{entry.label}</strong>
+              {entry.description ? <span className="muted">{entry.description}</span> : null}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 /**
@@ -257,6 +286,45 @@ export function createCoreModule(moduleAdminSections: AdminNavEntry[]): AppModul
               locale={ctx.locale ?? "de"}
               user={ctx.currentUser}
               subPath={resolved.innerSubPath}
+            />
+          );
+        }
+      },
+      {
+        // Zweite feste Sammelseite neben „Mitmachen“: Spiele der Module (Manifest `section: "games"`).
+        // Ohne Seitenkopf, damit ein eingebettetes Spiel die Fläche bekommt.
+        id: "games",
+        hash: "games",
+        order: 35,
+        bare: true,
+        label: (t) => t("main.nav.games"),
+        icon: NAV_ICONS.games,
+        inMenu: (ctx) => Boolean(ctx.currentUser) && moduleMenuEntries(ctx.runtimeModules ?? [], "games").length > 0,
+        hero: (t) => ({
+          eyebrow: t("main.route.games.eyebrow"),
+          title: t("main.route.games.title"),
+          description: ""
+        }),
+        render: (ctx) => {
+          if (!ctx.currentUser) {
+            return <LoginRequired eyebrowKey="main.nav.games" />;
+          }
+          const infos = ctx.runtimeModules ?? [];
+          const entries = moduleMenuEntries(infos, "games");
+          const resolved =
+            resolveModuleMenuEntry(infos, ctx.subPath, "games") ??
+            (entries.length === 1 && !ctx.subPath ? { match: entries[0]!, innerSubPath: "" } : undefined);
+          if (!resolved) {
+            return <GamesIndex entries={entries} />;
+          }
+          return (
+            <ModuleMenuEntryPage
+              info={resolved.match.info}
+              entry={resolved.match.entry}
+              locale={ctx.locale ?? "de"}
+              user={ctx.currentUser}
+              subPath={resolved.innerSubPath}
+              bare
             />
           );
         }

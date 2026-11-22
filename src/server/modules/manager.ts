@@ -1113,7 +1113,9 @@ export function createModuleManager(context: DatabaseContext, options: ModuleMan
               path: entry.path,
               label: localize(entry.label, user.locale ?? undefined),
               icon: entry.icon ?? null,
-              order: entry.order
+              order: entry.order,
+              section: entry.section,
+              description: entry.description ? localize(entry.description, user.locale ?? undefined) : null
             })),
           i18n: { de: readCatalog(runtime, "de") ?? {}, en: readCatalog(runtime, "en") ?? {} }
         };

@@ -9,5 +9,8 @@ export const NAV_ICONS = {
   /** Puzzleteil: Standard für Modulseiten ohne eigenes Symbol. */
   module:
     "M20.5 11H19V7a2 2 0 0 0-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4a2 2 0 0 0-2 2v3.8h1.5a2.7 2.7 0 0 1 0 5.4H2V20a2 2 0 0 0 2 2h3.8v-1.5a2.7 2.7 0 0 1 5.4 0V22H17a2 2 0 0 0 2-2v-4h1.5a2.5 2.5 0 0 0 0-5Z",
+  /** Gamepad: Hauptmenüpunkt „Spiele“. */
+  games:
+    "M17.3 6H6.7a4.7 4.7 0 0 0-4.6 3.9l-.9 5.4A2.6 2.6 0 0 0 5.6 17.6L8 15h8l2.4 2.6a2.6 2.6 0 0 0 4.4-2.3l-.9-5.4A4.7 4.7 0 0 0 17.3 6ZM10 11H8v2H6v-2H4V9h2V7h2v2h2Zm5 2a1 1 0 1 1 1-1 1 1 0 0 1-1 1Zm2-3a1 1 0 1 1 1-1 1 1 0 0 1-1 1Z",
   profile: "M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"
 } as const;

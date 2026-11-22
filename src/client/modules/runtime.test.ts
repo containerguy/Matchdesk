@@ -32,6 +32,19 @@ describe("moduleMenuEntries", () => {
   it("ist leer ohne aktive Module", () => {
     expect(moduleMenuEntries([])).toEqual([]);
   });
+
+  it("trennt Einträge nach Sammelseite: ohne Angabe Mitmachen, sonst Spiele", () => {
+    const infos = [
+      demoModule([
+        { path: "", label: "Demo", icon: null, order: 40 },
+        { path: "billard", label: "Billard", icon: null, order: 10, section: "games" }
+      ])
+    ];
+    expect(moduleMenuEntries(infos).map((candidate) => candidate.slug)).toEqual(["demo"]);
+    expect(moduleMenuEntries(infos, "games").map((candidate) => candidate.slug)).toEqual(["demo/billard"]);
+    expect(resolveModuleMenuEntry(infos, "demo/billard/match/7", "games")).toMatchObject({ innerSubPath: "match/7" });
+    expect(resolveModuleMenuEntry(infos, "demo/billard")).toMatchObject({ match: { slug: "demo" }, innerSubPath: "billard" });
+  });
 });
 
 describe("resolveModuleMenuEntry", () => {

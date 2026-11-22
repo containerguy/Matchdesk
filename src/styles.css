@@ -4309,3 +4309,44 @@ details.collapsible[open] > summary::before {
   background: #fff4d6;
   color: #8a5a00;
 }
+
+/* „Spiele“ (#games): Seite ohne Seitenkopf, Spieleauswahl als Kacheln, eingebettete Spiele füllen die Fläche */
+.page-shell--bare {
+  padding-top: clamp(12px, 2vw, 20px);
+}
+
+.module-page--bare {
+  min-width: 0;
+}
+
+.games-grid {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.games-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 120px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.games-tile:hover,
+.games-tile:focus-visible {
+  border-color: var(--ink);
+}
+
+.games-tile__icon {
+  width: 32px;
+  height: 32px;
+}
