@@ -469,14 +469,16 @@ function AppShell({
           </div>
         </div>
       ) : (
-        <div className="page-shell">
-          <PageHeader
-            pageId={activePage.id}
-            hero={hero}
-            currentUser={currentUser}
-            omitSessionAside={omitHeroSessionAside}
-            collapsed={heroCollapsed}
-          />
+        <div className={activePage.bare ? "page-shell page-shell--bare" : "page-shell"}>
+          {activePage.bare ? null : (
+            <PageHeader
+              pageId={activePage.id}
+              hero={hero}
+              currentUser={currentUser}
+              omitSessionAside={omitHeroSessionAside}
+              collapsed={heroCollapsed}
+            />
+          )}
           {pageContent}
         </div>
       )}

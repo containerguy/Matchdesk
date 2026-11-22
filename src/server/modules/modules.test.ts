@@ -304,7 +304,7 @@ describe("Modulverwaltung", () => {
         version: "1.0.0",
         clientUrl: "/modules/demo/1.0.0/client.mjs",
         permissions: ["demo.write"],
-        menu: [expect.objectContaining({ path: "", label: "Demo" })],
+        menu: [expect.objectContaining({ path: "", label: "Demo", section: "mitmachen", description: null })],
         i18n: { de: { "demo.title": "Demo" }, en: {} }
       })
     ]);

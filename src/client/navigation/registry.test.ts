@@ -193,4 +193,40 @@ describe("navigation registry", () => {
     expect(memberResult.props.entry.path).toBe("liste");
     expect(memberResult.props.subPath).toBe("");
   });
+
+  it("zeigt „Spiele“ nur mit Spiele-Einträgen, ohne Seitenkopf, und rendert Auswahl oder Spielseite", async () => {
+    const { ModuleMenuEntryPage } = await import("../modules/runtime");
+    const gamesPage = appPages.find((page) => page.id === "games")!;
+    expect(gamesPage.bare).toBe(true);
+    const plain = moduleInfo("demo", "Demo", [{ path: "", label: "Demo", icon: null, order: 40 }]);
+    const arena = moduleInfo("arena", "Spiele", [{ path: "", label: "Spiele", icon: null, order: 10, section: "games" }]);
+    const second = moduleInfo("quiz", "Quiz", [{ path: "", label: "Quiz", icon: null, order: 20, section: "games" }]);
+    expect(gamesPage.inMenu(ctx({ runtimeModules: [plain] }))).toBe(false);
+    expect(gamesPage.inMenu(ctx({ runtimeModules: [plain, arena] }))).toBe(true);
+    expect(gamesPage.inMenu(ctx({ currentUser: null, runtimeModules: [arena] }))).toBe(false);
+    const mitmachenPage = appPages.find((page) => page.id === "mitmachen")!;
+    expect(mitmachenPage.inMenu(ctx({ runtimeModules: [arena] }))).toBe(false);
+
+    const renderCtx = { setCurrentUser: () => {}, applySettings: () => {} };
+    const single = gamesPage.render({ ...ctx({ runtimeModules: [arena] }), subPath: "", ...renderCtx }) as {
+      type: unknown;
+      props: { bare: boolean; subPath: string };
+    };
+    expect(single.type).toBe(ModuleMenuEntryPage);
+    expect(single.props.bare).toBe(true);
+
+    const index = gamesPage.render({ ...ctx({ runtimeModules: [arena, second] }), subPath: "", ...renderCtx }) as {
+      type: { name: string };
+      props: { entries: unknown[] };
+    };
+    expect(index.type.name).toBe("GamesIndex");
+    expect(index.props.entries).toHaveLength(2);
+
+    const deep = gamesPage.render({ ...ctx({ runtimeModules: [arena, second] }), subPath: "arena/billiard/match/3", ...renderCtx }) as {
+      type: unknown;
+      props: { subPath: string };
+    };
+    expect(deep.type).toBe(ModuleMenuEntryPage);
+    expect(deep.props.subPath).toBe("billiard/match/3");
+  });
 });

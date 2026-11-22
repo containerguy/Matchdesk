@@ -1,6 +1,8 @@
 import type React from "react";
 import type { MainEventParticipation, User } from "../types/core";
 
+export type ModuleMenuSection = "mitmachen" | "games";
+
 /** Was GET /api/modules je aktivem Modul liefert. */
 export type RuntimeModuleInfo = {
   id: string;
@@ -15,7 +17,15 @@ export type RuntimeModuleInfo = {
   /** Zeigt `EventNotice` in jeder Event-Karte unter „Events". */
   eventNotice?: boolean;
   permissions: string[];
-  menu: Array<{ path: string; label: string; icon: string | null; order: number }>;
+  menu: Array<{
+    path: string;
+    label: string;
+    icon: string | null;
+    order: number;
+    /** Sammelseite: `mitmachen` (Standard) oder `games` (Hauptmenüpunkt „Spiele“). Ältere Kerne lassen das Feld weg. */
+    section?: ModuleMenuSection;
+    description?: string | null;
+  }>;
   i18n: { de: Record<string, string>; en: Record<string, string> };
 };
 
@@ -42,7 +52,7 @@ export type ModuleClientHost = {
 export type ModulePageProps = {
   /** Menüpfad aus dem Manifest ("" = Startseite). */
   path: string;
-  /** Rest des Hashes hinter #mitmachen/<id>/<path>/ */
+  /** Rest des Hashes hinter #mitmachen/<id>/<path>/ bzw. #games/<id>/<path>/ */
   subPath: string;
   user: User;
   permissions: string[];

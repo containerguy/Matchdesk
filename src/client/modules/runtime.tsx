@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as ReactDOM from "react-dom";
 import { requestJson } from "../api/request";
 import type { User } from "../types/core";
-import type { ModuleClientDefinition, ModuleClientFactory, ModuleClientHost, RuntimeModuleInfo } from "./types";
+import type { ModuleClientDefinition, ModuleClientFactory, ModuleClientHost, ModuleMenuSection, RuntimeModuleInfo } from "./types";
 
 export const CLIENT_MODULE_API = 1;
 
@@ -251,7 +251,7 @@ export function ModuleProfileSection({ info, locale, user }: { info: RuntimeModu
   );
 }
 
-/** Ein Menüeintrag eines aktiven Moduls, wie er auf der Sammelseite „Mitmachen" erscheint. */
+/** Ein Menüeintrag eines aktiven Moduls, wie er auf einer Sammelseite („Mitmachen“, „Spiele“) erscheint. */
 export type ModuleMenuEntry = {
   info: RuntimeModuleInfo;
   entry: RuntimeModuleInfo["menu"][number];
@@ -259,11 +259,16 @@ export type ModuleMenuEntry = {
   slug: string;
 };
 
-/** Alle Menüeinträge aktiver Module, sortiert nach ihrer `order` für die Sammelseite „Mitmachen". */
-export function moduleMenuEntries(infos: RuntimeModuleInfo[]): ModuleMenuEntry[] {
+/**
+ * Alle Menüeinträge aktiver Module einer Sammelseite, sortiert nach ihrer `order`.
+ * `mitmachen` (Standard) für `#mitmachen/<slug>`, `games` für den Hauptmenüpunkt „Spiele“ (`#games/<slug>`).
+ */
+export function moduleMenuEntries(infos: RuntimeModuleInfo[], section: ModuleMenuSection = "mitmachen"): ModuleMenuEntry[] {
   return infos
     .flatMap((info) =>
-      info.menu.map((entry) => ({ info, entry, slug: entry.path ? `${info.id}/${entry.path}` : info.id })),
+      info.menu
+        .filter((entry) => (entry.section ?? "mitmachen") === section)
+        .map((entry) => ({ info, entry, slug: entry.path ? `${info.id}/${entry.path}` : info.id })),
     )
     .sort((a, b) => a.entry.order - b.entry.order || a.slug.localeCompare(b.slug));
 }
@@ -276,8 +281,9 @@ export function moduleMenuEntries(infos: RuntimeModuleInfo[]): ModuleMenuEntry[]
 export function resolveModuleMenuEntry(
   infos: RuntimeModuleInfo[],
   subPath: string,
+  section: ModuleMenuSection = "mitmachen",
 ): { match: ModuleMenuEntry; innerSubPath: string } | undefined {
-  const match = moduleMenuEntries(infos)
+  const match = moduleMenuEntries(infos, section)
     .filter((candidate) => subPath === candidate.slug || subPath.startsWith(`${candidate.slug}/`))
     .sort((a, b) => b.slug.length - a.slug.length)[0];
   if (!match) return undefined;
@@ -291,15 +297,18 @@ export function ModuleMenuEntryPage({
   locale,
   user,
   subPath,
+  bare = false,
 }: {
   info: RuntimeModuleInfo;
   entry: RuntimeModuleInfo["menu"][number];
   locale: string;
   user: User;
   subPath: string;
+  /** Ohne Karte (Spieleseiten): das Modul gestaltet die ganze Fläche selbst. */
+  bare?: boolean;
 }) {
   return (
-    <div className="page-card module-page">
+    <div className={bare ? "module-page module-page--bare" : "page-card module-page"}>
       <ModuleSlot
         info={info}
         locale={locale}
